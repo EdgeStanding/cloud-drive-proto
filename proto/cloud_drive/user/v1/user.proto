@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package proto.cloud_drive.user.v1;
+
+import "proto/cloud_drive/common/v1/common.proto";
+
+option go_package = "github.com/EdgeStanding/cloud-drive-proto/gen/proto/cloud_drive/user/v1";
+
+service UserService {
+  rpc BasicAuth(BasicAuthRequest) returns (BasicAuthResponse) {}  
+}
+
+message BasicAuthRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message BasicAuthResponse {
+  bool success = 1;
+}

@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package proto.cloud_drive.common.v1;
+
+option go_package = "github.com/EdgeStanding/cloud-drive-proto/gen/proto/cloud_drive/common/v1";
+
+// 用户基本信息
+message User {
+  string id = 1;
+}
+
+// 分页请求
+message PaginationRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
+// 分页响应
+message PaginationResponse {
+  int32 total = 1;
+  int32 total_pages = 2;
+  int32 current_page = 3;
+}
+
+// 认证信息
+message AuthInfo {
+  string username = 1;
+  string workspace = 2;
+}

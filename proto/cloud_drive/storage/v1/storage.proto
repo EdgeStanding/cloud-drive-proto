@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package proto.cloud_drive.storage.v1;
+
+import "proto/cloud_drive/common/v1/common.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/EdgeStanding/cloud-drive-proto/gen/proto/cloud_drive/storage/v1";
+
+// StorageService 存储服务
+service StorageService {
+  // CreateUploadRequest 创建一个上传请求，生成上传地址并返回给调用者。
+  // 这里不负责上传，上传是交给其他程序进行的。
+  // 这里只负责生成上传地址，并返回给调用者。
+  // 但是这里需要使用文件块的方式
+  rpc CreateUploadRequest(CreateUploadRequestRequest) returns (CreateUploadRequestResponse) {}
+
+  // CompleteChunkUpload 完成一个上传请求
+  // 当客户端通过链接上传完毕后，将调用这个方法。这个方法将会对已经上传的内容进行验证
+  rpc CompleteChunkUpload(CompleteChunkUploadRequest) returns (CompleteChunkUploadResponse) {}
+
+  // GetChunkDownloadURL 获取分块的下载地址
+  // 这里不负责下载，下载是交给其他程序进行的。
+  // 这里只负责生成下载地址，并返回给调用者。
+  rpc GetChunkDownloadURL(GetChunkDownloadURLRequest) returns (GetChunkDownloadURLResponse) {}
+}
+
+// CreateUploadRequestRequest 创建上传请求的请求消息
+message CreateUploadRequestRequest {
+  string hash = 1;                          // 文件块的哈希值
+  int64 size = 2;                          // 文件块的大小
+  int64 order = 3;                         // 文件块的顺序
+}
+
+// CreateUploadRequestResponse 创建上传请求的响应消息
+message CreateUploadRequestResponse {
+  string upload_url = 1;                   // 上传地址
+  google.protobuf.Timestamp expires_at = 2; // 上传地址的过期时间
+}
+
+// CompleteChunkUploadRequest 完成上传请求的请求消息
+message CompleteChunkUploadRequest {
+  string hash = 1;                          // 文件块的哈希值
+}
+
+// CompleteChunkUploadResponse 完成上传请求的响应消息
+message CompleteChunkUploadResponse {
+  bool success = 1;                        // 是否成功
+  string message = 2;                      // 错误信息（如果有）
+}
+
+// GetChunkDownloadURLRequest 获取下载地址的请求消息
+message GetChunkDownloadURLRequest {
+  repeated string hash = 1;                          // 文件块的哈希值
+}
+
+// GetChunkDownloadURLResponse 获取下载地址的响应消息
+message GetChunkDownloadURLResponse {
+  repeated ChunkDownloadURL urls = 1;                // 下载地址列表
+  google.protobuf.Timestamp expires_at = 2;           // 下载地址的过期时间
+  int64 size = 3;                                    // 文件块的大小
+}
+
+message ChunkDownloadURL {
+  string hash = 1;                                   // 文件块的哈希值
+  repeated StorageURL urls = 2;                       // 下载地址列表
+}
+
+message StorageURL {
+  string storage_name = 1;                           // 存储名称
+  string url = 2;                                    // 下载地址
+}

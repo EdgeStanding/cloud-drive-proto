@@ -1,0 +1,337 @@
+syntax = "proto3";
+
+package proto.cloud_drive.file.v1;
+
+import "proto/cloud_drive/common/v1/common.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/EdgeStanding/cloud-drive-proto/gen/proto/cloud_drive/file/v1";
+
+// FileService 文件服务
+service FileService {
+  // CreateDirectory 创建目录
+  rpc CreateDirectory(CreateDirectoryRequest) returns (CreateDirectoryResponse) {}
+  
+  // ListFiles 列出目录下的文件
+  rpc ListFiles(ListFilesRequest) returns (ListFilesResponse) {}
+  
+  // DeleteFile 删除文件
+  rpc DeleteFile(DeleteFileRequest) returns (DeleteFileResponse) {}
+
+//  CreateFile 创建文件
+  rpc CreateFile(CreateFileRequest) returns (CreateFileResponse) {}
+
+  rpc GetFile(GetFileRequest) returns (GetFileResponse) {}
+
+  rpc FileExists(FileExistsRequest) returns (FileExistsResponse) {}
+  
+  // InitUpload 初始化文件上传
+//  rpc InitUpload(InitUploadRequest) returns (InitUploadResponse) {}
+
+  // ListDeletedFiles 列出已删除的文件
+  rpc ListDeletedFiles(ListDeletedFilesRequest) returns (ListDeletedFilesResponse) {}
+  
+  // RestoreFile 恢复已删除的文件
+  rpc RestoreFile(RestoreFileRequest) returns (RestoreFileResponse) {}
+  
+  // PermanentlyDeleteFile 永久删除文件
+  rpc PermanentlyDeleteFile(PermanentlyDeleteFileRequest) returns (PermanentlyDeleteFileResponse) {}
+  
+  // MoveFile 移动文件
+  rpc MoveFile(MoveFileRequest) returns (MoveFileResponse) {}
+  
+  // CopyFile 复制文件
+  rpc CopyFile(CopyFileRequest) returns (CopyFileResponse) {}
+  
+  // RenameFile 重命名文件
+//  rpc RenameFile(RenameFileRequest) returns (RenameFileResponse) {}
+
+  // GetFileChunks 获取文件分块列表
+  rpc GetFileChunks(FileChunksRequest) returns (FileChunksResponse) {}
+
+  // DownloadFile 获取文件的下载地址
+//  rpc DownloadFile(FileChunkDownloadLinkRequest) returns (FileChunkDownloadLinkResponse) {}
+
+  // 列出回收站中的文件
+  rpc ListRecycleBin(ListRecycleBinRequest) returns (ListRecycleBinResponse) {}
+
+  // 从回收站恢复文件
+  rpc RestoreFromRecycleBin(RestoreFromRecycleBinRequest) returns (RestoreFromRecycleBinResponse) {}
+
+  // 永久删除回收站中的文件
+  rpc DeleteFromRecycleBin(DeleteFromRecycleBinRequest) returns (DeleteFromRecycleBinResponse) {}
+
+  // 清空回收站
+  rpc EmptyRecycleBin(EmptyRecycleBinRequest) returns (EmptyRecycleBinResponse) {}
+}
+
+message FileChunksRequest {
+  cloud_drive.common.v1.AuthInfo auth = 1;  // 认证信息
+  string path = 2;
+}
+
+// FileChunks
+
+message FileChunk {
+  int64 size = 2;
+  int64 order = 3;
+  string hash = 4;
+}
+
+message FileChunksResponse {
+  repeated FileChunk chunks = 1;
+}
+
+message FileChunkDownloadLinkRequest {
+  cloud_drive.common.v1.AuthInfo auth = 1;  // 认证信息
+  string path = 2;
+  int64 order = 3;
+}
+
+message FileChunkDownloadLinkResponse {
+  int64 order = 1;
+  uint64 size = 2;
+  string hash = 3;
+  string url = 4;
+}
+
+// File 文件信息
+message File {
+  uint64 id = 1;
+  string name = 2;
+  string path = 3;
+  string type = 4;
+  int64 size = 5;
+  string mime_type = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+  google.protobuf.Timestamp deleted_at = 9;
+}
+
+
+// ChunkInfo 分块信息
+message ChunkInfo {
+  int32 order = 1;
+  string hash = 2;
+  int64 size = 3;
+}
+
+// CreateDirectoryRequest 创建目录请求
+message CreateDirectoryRequest {
+  cloud_drive.common.v1.AuthInfo auth = 1;  // 认证信息
+  string path = 2;
+}
+
+// CreateDirectoryResponse 创建目录响应
+message CreateDirectoryResponse {
+  File file = 1;
+}
+
+// ListFilesRequest 列出目录下的文件请求
+message ListFilesRequest {
+  cloud_drive.common.v1.AuthInfo auth = 1;  // 认证信息
+  string path = 2;
+}
+
+// ListFilesResponse 列出目录下的文件响应
+message ListFilesResponse {
+  repeated File files = 1;
+}
+
+// DeleteFileRequest 删除文件请求
+message DeleteFileRequest {
+  cloud_drive.common.v1.AuthInfo auth = 1;  // 认证信息
+  string path = 2;
+}
+
+// DeleteFileResponse 删除文件响应
+message DeleteFileResponse {
+}
+
+// ListDeletedFilesRequest 列出已删除的文件请求
+message ListDeletedFilesRequest {
+  cloud_drive.common.v1.AuthInfo auth = 1;  // 认证信息
+}
+
+// ListDeletedFilesResponse 列出已删除的文件响应
+message ListDeletedFilesResponse {
+  repeated File files = 1;
+}
+
+// RestoreFileRequest 恢复已删除的文件请求
+message RestoreFileRequest {
+  cloud_drive.common.v1.AuthInfo auth = 1;  // 认证信息
+  string path = 2;
+}
+
+// RestoreFileResponse 恢复已删除的文件响应
+message RestoreFileResponse {
+}
+
+// PermanentlyDeleteFileRequest 永久删除文件请求
+message PermanentlyDeleteFileRequest {
+  cloud_drive.common.v1.AuthInfo auth = 1;  // 认证信息
+  string path = 2;
+}
+
+// PermanentlyDeleteFileResponse 永久删除文件响应
+message PermanentlyDeleteFileResponse {
+}
+
+// InitUploadRequest 初始化文件上传请求
+message InitUploadRequest {
+  cloud_drive.common.v1.AuthInfo auth = 1;    // 认证信息
+  string save_path = 2; // 文件保存路径
+  int64 size = 3;      // 文件大小
+  bool override = 4;    // 是否覆盖已存在的文件
+}
+
+// InitUploadResponse 初始化文件上传响应
+message InitUploadResponse {
+  File file = 1;                // 文件信息
+  int32 chunk_size = 2;         // 分块大小
+  int32 chunk_count = 3;        // 分块数量
+}
+
+// MoveFileRequest 移动文件请求
+message MoveFileRequest {
+  cloud_drive.common.v1.AuthInfo auth = 1;     // 认证信息
+  string source_path = 2;// 源文件路径
+  string target_path = 3;// 目标文件路径
+  bool override = 4;     // 是否覆盖已存在的文件
+}
+
+// MoveFileResponse 移动文件响应
+message MoveFileResponse {
+  File file = 1;  // 移动后的文件信息
+}
+
+// CopyFileRequest 复制文件请求
+message CopyFileRequest {
+  cloud_drive.common.v1.AuthInfo auth = 1;     // 认证信息
+  string source_path = 2;// 源文件路径
+  string target_path = 3;// 目标文件路径
+  bool override = 4;     // 是否覆盖已存在的文件
+}
+
+// CopyFileResponse 复制文件响应
+message CopyFileResponse {
+  File file = 1;  // 复制后的文件信息
+}
+
+// RenameFileRequest 重命名文件请求
+message RenameFileRequest {
+  cloud_drive.common.v1.AuthInfo auth = 1;    // 认证信息
+  string path = 2;      // 文件路径
+  string new_name = 3;  // 新文件名
+  bool override = 4;    // 是否覆盖已存在的文件
+}
+
+// RenameFileResponse 重命名文件响应
+message RenameFileResponse {
+  File file = 1;  // 重命名后的文件信息
+}
+
+// 列出回收站请求
+message ListRecycleBinRequest {
+  cloud_drive.common.v1.AuthInfo auth = 1;    // 认证信息
+  int32 page = 2;
+  int32 page_size = 3;
+  string sort_by = 4;
+  string sort_order = 5;
+}
+
+// 列出回收站响应
+message ListRecycleBinResponse {
+  // 回收站中的文件列表
+  repeated RecycleBinItem items = 1;
+  // 总数
+  int32 total = 2;
+}
+
+// 回收站项目信息
+message RecycleBinItem {
+  // 文件ID
+  int64 id = 1;
+  // 文件名
+  string name = 2;
+  // 原始路径
+  string original_path = 3;
+  // 是否是目录
+  string type = 4;
+  // 文件大小
+  int64 size = 5;
+  // MIME类型
+  string mime_type = 6;
+  // 删除时间
+  int64 deleted_at = 7;
+  // 过期时间
+  int64 expire_at = 8;
+}
+
+// 从回收站恢复文件请求
+message RestoreFromRecycleBinRequest {
+  cloud_drive.common.v1.AuthInfo auth = 1;       // 认证信息
+  string path = 2;
+  bool override = 3;
+  string target_path = 4;
+}
+
+// 从回收站恢复文件响应
+message RestoreFromRecycleBinResponse {
+  // 恢复的文件信息
+  File file = 1;
+}
+
+// 从回收站删除文件请求
+message DeleteFromRecycleBinRequest {
+  cloud_drive.common.v1.AuthInfo auth = 1;  // 认证信息
+  string path = 2;
+}
+
+// 从回收站删除文件响应
+message DeleteFromRecycleBinResponse {}
+
+// 清空回收站请求
+message EmptyRecycleBinRequest {
+  cloud_drive.common.v1.AuthInfo auth = 1;  // 认证信息
+}
+
+// 清空回收站响应
+message EmptyRecycleBinResponse {
+  // 清空的文件数量
+  int32 deleted_count = 1;
+}
+
+message CreateFileRequest {
+  cloud_drive.common.v1.AuthInfo auth = 1;  // 认证信息
+  //  文件名称和路径
+  string path = 2;
+//  文件大小
+  int64 size = 3;
+  // 分块哈希
+  repeated string chunk_hashes = 4;
+}
+
+message CreateFileResponse {
+  File file = 1;
+}
+
+message GetFileRequest {
+  cloud_drive.common.v1.AuthInfo auth = 1;  // 认证信息
+  string path = 2;
+}
+
+
+message GetFileResponse {
+  File file = 1;
+}
+
+message FileExistsRequest {
+  cloud_drive.common.v1.AuthInfo auth = 1;  // 认证信息
+  string path = 2;
+}
+
+message FileExistsResponse {
+  bool exists = 1;
+}
