@@ -8,7 +8,7 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	v1 "github.com/EdgeStanding/cloud-drive-proto/gen/proto/cloud_drive/storage/v1"
+	v1 "leafdev.top/CloudDrive/server/gen/proto/cloud_drive/storage/v1"
 	http "net/http"
 	strings "strings"
 )
@@ -42,6 +42,9 @@ const (
 	// StorageServiceGetChunkDownloadURLProcedure is the fully-qualified name of the StorageService's
 	// GetChunkDownloadURL RPC.
 	StorageServiceGetChunkDownloadURLProcedure = "/proto.cloud_drive.storage.v1.StorageService/GetChunkDownloadURL"
+	// StorageServiceChunkExistsProcedure is the fully-qualified name of the StorageService's
+	// ChunkExists RPC.
+	StorageServiceChunkExistsProcedure = "/proto.cloud_drive.storage.v1.StorageService/ChunkExists"
 )
 
 // StorageServiceClient is a client for the proto.cloud_drive.storage.v1.StorageService service.
@@ -58,6 +61,8 @@ type StorageServiceClient interface {
 	// 这里不负责下载，下载是交给其他程序进行的。
 	// 这里只负责生成下载地址，并返回给调用者。
 	GetChunkDownloadURL(context.Context, *connect.Request[v1.GetChunkDownloadURLRequest]) (*connect.Response[v1.GetChunkDownloadURLResponse], error)
+	// ChunkExists 检查文件块是否存在，在创建上传请求之前，需要检查文件块是否存在。如果存在就跳过上传。
+	ChunkExists(context.Context, *connect.Request[v1.ChunkExistsRequest]) (*connect.Response[v1.ChunkExistsResponse], error)
 }
 
 // NewStorageServiceClient constructs a client for the proto.cloud_drive.storage.v1.StorageService
@@ -89,6 +94,12 @@ func NewStorageServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(storageServiceMethods.ByName("GetChunkDownloadURL")),
 			connect.WithClientOptions(opts...),
 		),
+		chunkExists: connect.NewClient[v1.ChunkExistsRequest, v1.ChunkExistsResponse](
+			httpClient,
+			baseURL+StorageServiceChunkExistsProcedure,
+			connect.WithSchema(storageServiceMethods.ByName("ChunkExists")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -97,6 +108,7 @@ type storageServiceClient struct {
 	createUploadRequest *connect.Client[v1.CreateUploadRequestRequest, v1.CreateUploadRequestResponse]
 	completeChunkUpload *connect.Client[v1.CompleteChunkUploadRequest, v1.CompleteChunkUploadResponse]
 	getChunkDownloadURL *connect.Client[v1.GetChunkDownloadURLRequest, v1.GetChunkDownloadURLResponse]
+	chunkExists         *connect.Client[v1.ChunkExistsRequest, v1.ChunkExistsResponse]
 }
 
 // CreateUploadRequest calls proto.cloud_drive.storage.v1.StorageService.CreateUploadRequest.
@@ -114,6 +126,11 @@ func (c *storageServiceClient) GetChunkDownloadURL(ctx context.Context, req *con
 	return c.getChunkDownloadURL.CallUnary(ctx, req)
 }
 
+// ChunkExists calls proto.cloud_drive.storage.v1.StorageService.ChunkExists.
+func (c *storageServiceClient) ChunkExists(ctx context.Context, req *connect.Request[v1.ChunkExistsRequest]) (*connect.Response[v1.ChunkExistsResponse], error) {
+	return c.chunkExists.CallUnary(ctx, req)
+}
+
 // StorageServiceHandler is an implementation of the proto.cloud_drive.storage.v1.StorageService
 // service.
 type StorageServiceHandler interface {
@@ -129,6 +146,8 @@ type StorageServiceHandler interface {
 	// 这里不负责下载，下载是交给其他程序进行的。
 	// 这里只负责生成下载地址，并返回给调用者。
 	GetChunkDownloadURL(context.Context, *connect.Request[v1.GetChunkDownloadURLRequest]) (*connect.Response[v1.GetChunkDownloadURLResponse], error)
+	// ChunkExists 检查文件块是否存在，在创建上传请求之前，需要检查文件块是否存在。如果存在就跳过上传。
+	ChunkExists(context.Context, *connect.Request[v1.ChunkExistsRequest]) (*connect.Response[v1.ChunkExistsResponse], error)
 }
 
 // NewStorageServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -156,6 +175,12 @@ func NewStorageServiceHandler(svc StorageServiceHandler, opts ...connect.Handler
 		connect.WithSchema(storageServiceMethods.ByName("GetChunkDownloadURL")),
 		connect.WithHandlerOptions(opts...),
 	)
+	storageServiceChunkExistsHandler := connect.NewUnaryHandler(
+		StorageServiceChunkExistsProcedure,
+		svc.ChunkExists,
+		connect.WithSchema(storageServiceMethods.ByName("ChunkExists")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/proto.cloud_drive.storage.v1.StorageService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case StorageServiceCreateUploadRequestProcedure:
@@ -164,6 +189,8 @@ func NewStorageServiceHandler(svc StorageServiceHandler, opts ...connect.Handler
 			storageServiceCompleteChunkUploadHandler.ServeHTTP(w, r)
 		case StorageServiceGetChunkDownloadURLProcedure:
 			storageServiceGetChunkDownloadURLHandler.ServeHTTP(w, r)
+		case StorageServiceChunkExistsProcedure:
+			storageServiceChunkExistsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -183,4 +210,8 @@ func (UnimplementedStorageServiceHandler) CompleteChunkUpload(context.Context, *
 
 func (UnimplementedStorageServiceHandler) GetChunkDownloadURL(context.Context, *connect.Request[v1.GetChunkDownloadURLRequest]) (*connect.Response[v1.GetChunkDownloadURLResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("proto.cloud_drive.storage.v1.StorageService.GetChunkDownloadURL is not implemented"))
+}
+
+func (UnimplementedStorageServiceHandler) ChunkExists(context.Context, *connect.Request[v1.ChunkExistsRequest]) (*connect.Response[v1.ChunkExistsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("proto.cloud_drive.storage.v1.StorageService.ChunkExists is not implemented"))
 }

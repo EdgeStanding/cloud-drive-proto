@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package proto.cloud_drive.common.v1;
 
-option go_package = "github.com/EdgeStanding/cloud-drive-proto/gen/proto/cloud_drive/common/v1";
+option go_package = "leafdev.top/CloudDrive/server/gen/proto/cloud_drive/common/v1";
 
 // 用户基本信息
 message User {

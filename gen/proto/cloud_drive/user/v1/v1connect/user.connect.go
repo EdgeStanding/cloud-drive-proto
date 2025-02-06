@@ -8,7 +8,7 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	v1 "github.com/EdgeStanding/cloud-drive-proto/gen/proto/cloud_drive/user/v1"
+	v1 "leafdev.top/CloudDrive/server/gen/proto/cloud_drive/user/v1"
 	http "net/http"
 	strings "strings"
 )

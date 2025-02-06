@@ -5,7 +5,7 @@ package proto.cloud_drive.storage.v1;
 import "proto/cloud_drive/common/v1/common.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/EdgeStanding/cloud-drive-proto/gen/proto/cloud_drive/storage/v1";
+option go_package = "leafdev.top/CloudDrive/server/gen/proto/cloud_drive/storage/v1";
 
 // StorageService 存储服务
 service StorageService {
@@ -23,6 +23,9 @@ service StorageService {
   // 这里不负责下载，下载是交给其他程序进行的。
   // 这里只负责生成下载地址，并返回给调用者。
   rpc GetChunkDownloadURL(GetChunkDownloadURLRequest) returns (GetChunkDownloadURLResponse) {}
+
+  // ChunkExists 检查文件块是否存在，在创建上传请求之前，需要检查文件块是否存在。如果存在就跳过上传。
+  rpc ChunkExists(ChunkExistsRequest) returns (ChunkExistsResponse) {}
 }
 
 // CreateUploadRequestRequest 创建上传请求的请求消息
@@ -69,4 +72,13 @@ message ChunkDownloadURL {
 message StorageURL {
   string storage_name = 1;                           // 存储名称
   string url = 2;                                    // 下载地址
+}
+
+message ChunkExistsRequest {
+  string hash = 1;                          // 文件块的哈希值
+}
+
+message ChunkExistsResponse {
+  int64 replicas = 1;                          // 文件块的副本数
+  bool exists = 2;                          // 文件块是否存在
 }

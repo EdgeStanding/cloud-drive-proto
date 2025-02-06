@@ -5,7 +5,7 @@ package proto.cloud_drive.file.v1;
 import "proto/cloud_drive/common/v1/common.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/EdgeStanding/cloud-drive-proto/gen/proto/cloud_drive/file/v1";
+option go_package = "leafdev.top/CloudDrive/server/gen/proto/cloud_drive/file/v1";
 
 // FileService 文件服务
 service FileService {
