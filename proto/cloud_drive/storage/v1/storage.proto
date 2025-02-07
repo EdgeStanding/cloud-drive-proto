@@ -32,7 +32,6 @@ service StorageService {
 message CreateUploadRequestRequest {
   string hash = 1;                          // 文件块的哈希值
   int64 size = 2;                          // 文件块的大小
-  int64 order = 3;                         // 文件块的顺序
 }
 
 // CreateUploadRequestResponse 创建上传请求的响应消息

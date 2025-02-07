@@ -310,7 +310,7 @@ message CreateFileRequest {
 //  文件大小
   int64 size = 3;
   // 分块哈希
-  repeated string chunk_hashes = 4;
+  repeated OrderedHashes hashes = 4;
 }
 
 message CreateFileResponse {
@@ -334,4 +334,9 @@ message FileExistsRequest {
 
 message FileExistsResponse {
   bool exists = 1;
+}
+
+message OrderedHashes {
+  string hash = 1;
+  uint64 order = 2;
 }
