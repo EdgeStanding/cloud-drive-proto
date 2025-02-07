@@ -27,3 +27,9 @@ message AuthInfo {
   string username = 1;
   string workspace = 2;
 }
+
+
+message OrderedHash {
+  string hash = 1;
+  uint64 order = 2;
+}

@@ -53,7 +53,7 @@ message CompleteChunkUploadResponse {
 
 // GetChunkDownloadURLRequest 获取下载地址的请求消息
 message GetChunkDownloadURLRequest {
-  repeated string hash = 1;                          // 文件块的哈希值
+  repeated common.v1.OrderedHash hashes = 1;
 }
 
 // GetChunkDownloadURLResponse 获取下载地址的响应消息
@@ -64,8 +64,9 @@ message GetChunkDownloadURLResponse {
 }
 
 message ChunkDownloadURL {
-  string hash = 1;                                   // 文件块的哈希值
-  repeated StorageURL urls = 2;                       // 下载地址列表
+  uint64 order = 1;
+  string hash = 2;                                   // 文件块的哈希值
+  repeated StorageURL urls = 3;                       // 下载地址列表
 }
 
 message StorageURL {
@@ -81,3 +82,4 @@ message ChunkExistsResponse {
   int64 replicas = 1;                          // 文件块的副本数
   bool exists = 2;                          // 文件块是否存在
 }
+
